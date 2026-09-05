@@ -1,16 +1,16 @@
 
 import './App.css'
 import useLocalStorage from './hooks/useLocalStorage';
-import Layout from './pages/DashboardLayout/Layout';
+import Layout from './container/DashboardLayout/Layout';
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import Dashboard from "./pages/DashboardLayout/Dashboard"
-import Accounts from "./pages/Accounts/Accounts"
-import Cash from './pages/Accounts/CashDetails';
-import Bank from "./pages/Accounts/BankDetails";
+import Dashboard from "./container/DashboardLayout/Dashboard"
+import Accounts from "./container/Accounts/Accounts"
+import Cash from './container/Accounts/CashDetails';
+import Bank from "./container/Accounts/BankDetails";
 import { FinanceProvider } from "./context/FinanceContext"
 
-import ExpenseGroupDetails from './pages/Expenses/ExpenseGroupDetails';
-import ExpensesDetail from './pages/Expenses/ExpensesDetail';
+import ExpenseGroupDetails from './container/Expenses/ExpenseGroupDetails';
+import ExpensesDetail from './container/Expenses/ExpensesDetail';
 
 function App() {
   return(

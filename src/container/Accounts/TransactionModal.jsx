@@ -1,7 +1,7 @@
 import { Button } from "../../components/ui/button"
-
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -24,23 +24,32 @@ import { Label } from "../../components/ui/label"
 import { useForm } from "react-hook-form"
 
 export function TransactionModal() {
-  const { register, handleSubmit, reset, setValue, watch } = useForm()
-  const accountType = watch("accountType")
+  const { register, handleSubmit, reset } = useForm()
   const { accounts, addAccount, addTransaction } = useContext(FinanceContext)
   const bankAccounts = accounts.filter((a) => a.type === "bank")
 
+  const [type, setType] = useState("deposit")
+  const [accountType, setAccountType] = useState("")
   const [selectedBankId, setSelectedBankId] = useState("")
   const [newBankName, setNewBankName] = useState("")
+
+  function resetForm() {
+    reset()
+    setType("deposit")
+    setAccountType("")
+    setSelectedBankId("")
+    setNewBankName("")
+  }
 
   function onSubmit(data) {
     let accountId = null
     const cashAccount = accounts.find((a) => a.type === "cash")
 
-    if (data.accountType === "cash") {
+    if (accountType === "cash") {
       accountId = cashAccount ? cashAccount.id : addAccount({ name: "Cash", type: "cash", balance: 0 })
     }
 
-    if (data.accountType === "bank") {
+    if (accountType === "bank") {
       if (selectedBankId === "newbank") {
         accountId = addAccount({ name: newBankName, type: "bank", balance: 0 })
       } else {
@@ -56,20 +65,18 @@ export function TransactionModal() {
     const result = addTransaction({
       accountId,
       amount: data.amount,
-      type: data.type,
+      type: type,
     })
 
     if (result.success) {
-      reset()
-      setSelectedBankId("")
-      setNewBankName("")
+      resetForm()
     } else {
       alert(result.message)
     }
   }
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={(open) => !open && resetForm()}>
       <DialogTrigger className="border rounded-md px-2 py-2 text-blue-800 text-sm mt-4 mb-4 hover:text-white hover:bg-gradient-to-br from-blue-600 to-indigo-700">
         + Add Transaction
       </DialogTrigger>
@@ -88,11 +95,10 @@ export function TransactionModal() {
               <Label htmlFor="amount">Amount</Label>
               <Input id="amount" type="number" step="0.01" {...register("amount")} />
             </Field>
+
             <Field>
               <Label htmlFor="type">Type</Label>
-              <Select
-                defaultValue="deposit"
-                onValueChange={(value) => setValue("type", value)}>
+              <Select defaultValue="deposit" onValueChange={setType}>
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -102,9 +108,10 @@ export function TransactionModal() {
                 </SelectContent>
               </Select>
             </Field>
+
             <Field>
               <Label htmlFor="accountType">Account</Label>
-              <Select onValueChange={(value) => setValue("accountType", value)}>
+              <Select onValueChange={setAccountType}>
                 <SelectTrigger id="accountType">
                   <SelectValue placeholder="Select an account" />
                 </SelectTrigger>
@@ -113,10 +120,11 @@ export function TransactionModal() {
                   <SelectItem value="bank">Bank</SelectItem>
                 </SelectContent>
               </Select>
+
               {accountType === "bank" && (
                 <Field>
                   <Label htmlFor="bank">Choose Bank</Label>
-                  <Select onValueChange={(value) => setSelectedBankId(value)}>
+                  <Select onValueChange={setSelectedBankId}>
                     <SelectTrigger id="bank">
                       <SelectValue placeholder="Select a bank" />
                     </SelectTrigger>
@@ -142,19 +150,14 @@ export function TransactionModal() {
               )}
             </Field>
           </FieldGroup>
+
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                reset()
-                setSelectedBankId("")
-                setNewBankName("")
-                
-              }}
-            >Cancel</Button>
-
+            <DialogClose asChild>
+              <Button type="button" variant="outline" onClick={resetForm}>
+                Cancel
+              </Button>
+            </DialogClose>
             <Button type="submit" variant="outline">Save changes</Button>
-
           </DialogFooter>
         </form>
       </DialogContent>

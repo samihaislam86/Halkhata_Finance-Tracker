@@ -10,17 +10,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/ui/dialog"
+import { Button } from "@/components/ui/ui/button"
+import { Input } from "@/components/ui/ui/input"
+import { Label } from "@/components/ui/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/ui/select"
 
 function ExpenseGroupDetails() {
     const { groupId } = useParams()

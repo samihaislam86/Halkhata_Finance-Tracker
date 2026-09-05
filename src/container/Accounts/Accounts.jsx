@@ -1,9 +1,10 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/ui/button";
 import { Link } from "react-router-dom"
 import { TransactionModal } from "./TransactionModal";
 import Details from "@/components/ui/app/DetailsPage";
 
 function Accounts() {
+
     return (
         <div>
             <h1 className="text-2xl font-bold text-center text-blue-800 border px-4 py-2 bg-white mb-4"> MY ACCOUNTS</h1>

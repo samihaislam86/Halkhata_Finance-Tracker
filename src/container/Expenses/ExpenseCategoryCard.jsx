@@ -1,14 +1,14 @@
 import { useContext, useState } from "react"
 import { FinanceContext } from "../../context/FinanceContext"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/ui/button"
+import { Input } from "@/components/ui/ui/input"
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/ui/select"
 
 function ExpenseCategoryCard({ category }) {
     const { accounts, addRecurringCategory, addTransaction } = useContext(FinanceContext)
