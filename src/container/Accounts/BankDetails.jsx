@@ -1,4 +1,4 @@
-import Details from "@/components/ui/app/DetailsPage";
+import Details from "@/components/app/DetailsPage";
 import TransactionTable from "./TransactionTable"
 import { TransactionModal } from "./TransactionModal";
 

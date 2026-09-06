@@ -1,13 +1,12 @@
 
 import './App.css'
-import useLocalStorage from './hooks/useLocalStorage';
 import Layout from './container/DashboardLayout/Layout';
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Dashboard from "./container/DashboardLayout/Dashboard"
 import Accounts from "./container/Accounts/Accounts"
 import Cash from './container/Accounts/CashDetails';
 import Bank from "./container/Accounts/BankDetails";
-import { FinanceProvider } from "./context/FinanceContext"
+import { FinanceProvider } from "./context/FinanaceProvider"
 
 import ExpenseGroupDetails from './container/Expenses/ExpenseGroupDetails';
 import ExpensesDetail from './container/Expenses/ExpensesDetail';

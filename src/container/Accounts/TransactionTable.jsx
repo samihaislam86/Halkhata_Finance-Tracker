@@ -1,6 +1,6 @@
 import { useContext } from "react"
 import { FinanceContext } from "../../context/FinanceContext"
-import TransTable from "../../components/ui/app/Table"
+import TransTable from "../../components/app/Table"
 
 function TransactionTable({ type }) {
     const { accounts, transactions } = useContext(FinanceContext)

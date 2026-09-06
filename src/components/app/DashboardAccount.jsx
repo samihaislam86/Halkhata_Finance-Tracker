@@ -1,12 +1,10 @@
-
 import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/ui/button";
-
+import { Button } from "@/components/ui/button";
 
 function DashboardAccCard() {
     return (
         <div className=" mb-2 bg-white rounded-xl border shadow-xl px-4 py-4">
-            <div className="text-xl  py-5 font-semibold">
+            <div className="text-xl  py-5 font-semibold text-blue-800">
                 <Link to="/accounts">Accounts</Link>
             </div>
             <div className="flex flex-col gap-2 ">

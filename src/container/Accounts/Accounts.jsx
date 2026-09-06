@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/ui/button";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom"
 import { TransactionModal } from "./TransactionModal";
-import Details from "@/components/ui/app/DetailsPage";
+import Details from "@/components/app/DetailsPage";
 
 function Accounts() {
 
@@ -18,7 +18,7 @@ function Accounts() {
                 </div>
                 <div className="flex flex-col bg-white border rounded-xl shadow-sm p-4 text-center shadow-lg">
                     <Link to="/accounts/bank" className="text-sm font-medium"><h1 className="text-bold text-2xl">Bank</h1></Link>
-                    <Button variant="outline" className="mt-4 ">
+                    <Button variant="outline" className="mt-4 " asChild>
                         <Link to="/accounts/bank" className="text-sm font-medium">View details</Link>
                     </Button>
                 </div>
