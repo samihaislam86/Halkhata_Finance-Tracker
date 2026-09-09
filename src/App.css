@@ -1,8 +1,9 @@
-.dashboard{
-    justify-content:center;
-    display:flex;
-    flex-direction:column;
-    box-shadow:0px 0px 0px 10px 0px rgba(0,0,0,1);
-    border-radius:20px;
-
+body {
+  margin: 0;
+  background-image: url('/bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  color:white
 }

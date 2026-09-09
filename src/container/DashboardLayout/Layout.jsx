@@ -1,16 +1,13 @@
-import { SidebarProvider} from "@/components/ui/sidebar"
-import AppSidebar from "./AppSidebar"
 
 import { Outlet } from "react-router-dom"
 
 function Layout() {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <main className="w-full p-4">
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-1">
         <Outlet />
       </main>
-    </SidebarProvider>
+    </div>
   )
 }
 

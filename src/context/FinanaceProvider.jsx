@@ -4,20 +4,133 @@ import useLocalStorage from "../hooks/useLocalStorage";
 export const FinanceProvider = ({ children }) => {
   const [accounts, setAccounts] = useLocalStorage("accounts", []);
   const [transactions, setTransactions] = useLocalStorage("transactions", []);
-  const [expenseGroups, setExpenseGroups] = useLocalStorage("expenseGroups", [])
-  const [expenseCategories, setExpenseCategories] = useLocalStorage("expenseCategories", [])
+  const [categories, setCategories] = useLocalStorage("categories", []);
+  const [fixedItems, setFixedItems] = useLocalStorage("fixedItems", []);
 
   const value = {
     accounts,
     transactions,
-    expenseGroups,
-    expenseCategories,
+    categories,
+    fixedItems,
     addAccount,
     addTransaction,
-    addExpenseGroup,
-    addExpenseCategory,
-    addRecurringCategory
+    updateAccount,
+    deleteAccount,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    addFixedItem,
+    updateFixedItem,
+    deleteFixedItem,
+    transferMoney
   };
+
+  function addTransaction({ name, accountId, amount, type, categoryId }) {
+    const transAmount = Number(amount);
+
+    if (!accountId) {
+        return { success: false, message: "Please choose an account." };
+    }
+    if (!transAmount || transAmount <= 0) {
+        return { success: false, message: "Enter a valid amount." };
+    }
+
+    if (type === "withdraw") {
+        const account = accounts.find((a) => a.id === accountId)
+        if (!account) {
+            return { success: false, message: "Invalid account." }
+        }
+        if (account.balance < transAmount) {
+            return { success: false, message: "Insufficient balance in this account." }
+        }
+    }
+
+    setAccounts((prev) =>
+        prev.map((a) =>
+            a.id === accountId
+                ? {
+                    ...a,
+                    balance:
+                        type === "withdraw"
+                            ? a.balance - transAmount
+                            : a.balance + transAmount,
+                }
+                : a
+        )
+    );
+
+    if (type === "withdraw" && categoryId) {
+        setCategories((prev) =>
+            prev.map((c) =>
+                c.id === categoryId ? { ...c, spent: (c.spent || 0) + transAmount } : c
+            )
+        )
+    }
+
+    setTransactions((prev) => [
+        ...prev,
+        {
+            id: Date.now().toString(),
+            name: name || "Untitled",
+            accountId,
+            type,
+            categoryId: categoryId || null,
+            amount: transAmount,
+            date: new Date().toISOString(),
+        },
+    ]);
+
+    return { success: true };
+  }
+
+  function transferMoney({ fromAccountId, toAccountId, amount }) {
+    const transferAmount = Number(amount);
+
+    if (!fromAccountId || !toAccountId) {
+        return { success: false, message: "Please choose both accounts." };
+    }
+    if (fromAccountId === toAccountId) {
+        return { success: false, message: "Cannot transfer to the same account." };
+    }
+    if (!transferAmount || transferAmount <= 0) {
+        return { success: false, message: "Enter a valid amount." };
+    }
+
+    const fromAccount = accounts.find((a) => a.id === fromAccountId)
+    if (!fromAccount) {
+        return { success: false, message: "Invalid source account." }
+    }
+    if (fromAccount.balance < transferAmount) {
+        return { success: false, message: "Insufficient balance in source account." }
+    }
+//transfer money 
+    setAccounts((prev) =>
+        prev.map((a) => {
+            if (a.id === fromAccountId) {
+                return { ...a, balance: a.balance - transferAmount }
+            }
+            if (a.id === toAccountId) {
+                return { ...a, balance: a.balance + transferAmount }
+            }
+            return a
+        })
+    );
+
+    setTransactions((prev) => [
+        ...prev,
+        {
+            id: Date.now().toString(),
+            name: `Transfer to ${accounts.find(a => a.id === toAccountId)?.name || "account"}`,
+            accountId: fromAccountId,
+            type: "transfer",
+            categoryId: null,
+            amount: transferAmount,
+            date: new Date().toISOString(),
+        },
+    ]);
+
+    return { success: true };
+  }
 
   function addAccount({ name, type, balance }) {
     const newAccount = {
@@ -30,148 +143,60 @@ export const FinanceProvider = ({ children }) => {
     return newAccount.id;
   }
 
-  function addTransaction({ accountId, amount, type, note, categoryId }) {
-    const transAmount = Number(amount);
+  function deleteAccount(id) {
+    setAccounts((prev) => prev.filter((item) => item.id !== id));
+  }
 
-    if (!accountId) {
-      return { success: false, message: "Please choose an account." };
-    }
-    if (!transAmount || transAmount <= 0) {
-      return { success: false, message: "Enter a valid amount." };
-    }
-
-    if (type === "withdraw") {
-      const account = accounts.find((a) => a.id === accountId)
-      if (!account) {
-        return { success: false, message: "Invalid account." }
-      }
-      if (account.balance < transAmount) {
-        return { success: false, message: "Insufficient balance in this account." }
-      }
-    }
-
-    if (type === "withdraw" && categoryId) {
-      const category = expenseCategories.find((c) => c.id === categoryId)
-      if (!category) {
-        return { success: false, message: "Invalid category." }
-      }
-      if (category.spent + transAmount > category.budget) {
-        return { success: false, message: "This would go over budget for that category." }
-      }
-    }
-
+  function updateAccount(id, updatedFields) {
     setAccounts((prev) =>
-      prev.map((a) =>
-        a.id === accountId
-          ? {
-            ...a,
-            balance:
-              type === "withdraw"
-                ? a.balance - transAmount
-                : a.balance + transAmount,
-          }
-          : a
-      )
+      prev.map((item) => (item.id === id ? { ...item, ...updatedFields } : item))
     );
-
-    if (type === "withdraw" && categoryId) {
-      setExpenseCategories((prev) =>
-        prev.map((c) =>
-          c.id === categoryId ? { ...c, spent: c.spent + transAmount } : c
-        )
-      )
-    }
-
-    setTransactions((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        accountId,
-        type,
-        categoryId: categoryId || null,
-        amount: transAmount,
-        note: note || "",
-        date: new Date().toISOString(),
-      },
-    ]);
-
-    return { success: true };
-
   }
-  function addExpenseGroup({ name }) {
-    const newGroup = {
-      id: Date.now().toString(),
-      name,
-    }
-    setExpenseGroups((prev) => [...prev, newGroup])
-    return newGroup.id
-  }
-  function addExpenseCategory({ groupId, name, budget, isRecurring, fixedAmount }) {
+
+  function addCategory({ name, description, accountId, budgetTarget }) {
     const newCategory = {
-      id: Date.now().toString(),
-      groupId,
-      name,
-      budget: Number(budget) || 0,
-      spent: 0,
-      isRecurring: !!isRecurring,
-      fixedAmount: isRecurring ? Number(fixedAmount) || 0 : null,
-      lastMonthPaid: null
-
-    }
-    setExpenseCategories((prev) => [...prev, newCategory])
-    return newCategory.id
-  }
-
-  function addRecurringCategory({ categoryId, accountId }) {
-    const category = expenseCategories.find((c) => c.id === categoryId)
-    if (!category) {
-      return { success: false, message: "Invalid category." }
-    }
-    if (!category.isRecurring) {
-      return { success: false, message: "" }
-    }
-    const currentMonth = new Date().toISOString().slice(0,7)
-    if (category.lastMonthPaid === currentMonth) {
-      return { success: false, message: "Already paid this month" }
-    }
-
-    const account = accounts.find((a) => a.id === accountId)
-    if (!account) {
-      return { success: false, message: "Invalid account." }
-    }
-    if (account.balance < category.fixedAmount) {
-      return { success: false, message: "Insufficient balance in this account." }
-    }
-    
-    const amount = category.fixedAmount
-
-    setAccounts((prev) =>
-      prev.map((a) =>
-        a.id === accountId
-          ? { ...a, balance: a.balance - amount } : a))
-
-    setExpenseCategories((prev) =>
-      prev.map((c) =>
-        c.id === categoryId
-          ? { ...c, spent: c.spent + amount, lastMonthPaid: currentMonth } : c))
-
-    setTransactions((prev) => [
-      ...prev,
-      {
         id: Date.now().toString(),
-        accountId,
-        type: "withdraw",
-        categoryId,
-        amount,
-        note: `${category.name}(recurring)`,
-        date: new Date().toISOString(),
-      },
-    ]);
-
-    return { success: true }
-
+        name,
+        description: description || "",
+        accountId: accountId || null,
+        budgetTarget: Number(budgetTarget) || 0,
+        spent: 0,
+    };
+    setCategories((prev) => [...prev, newCategory]);
+    return newCategory.id;
   }
 
+  function updateCategory(id, updatedFields) {
+    setCategories((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...updatedFields } : c))
+    );
+  }
+
+  function deleteCategory(id) {
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+  }
+
+  function addFixedItem({ name, description, categoryId, target }) {
+    const newFixedItem = {
+      id: Date.now().toString(),
+      name,
+      description: description || "",
+      categoryId,
+      target: Number(target) || 0,
+    };
+    setFixedItems((prev) => [...prev, newFixedItem]);
+    return newFixedItem.id;
+  }
+
+  function updateFixedItem(id, updatedFields) {
+    setFixedItems((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, ...updatedFields } : f))
+    );
+  }
+
+  function deleteFixedItem(id) {
+    setFixedItems((prev) => prev.filter((f) => f.id !== id));
+  }
 
   return (
     <FinanceContext.Provider value={value}>
