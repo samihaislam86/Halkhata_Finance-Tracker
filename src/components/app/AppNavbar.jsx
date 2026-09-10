@@ -36,17 +36,18 @@ function AppNavbar() {
                             </Link>
                         </NavigationMenuLink>
                     </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <NavigationMenuLink>
-                            <Link to="/expense" className="text-white/80 hover:text-black text-sm">
-                                My Expenses
-                            </Link>
-                        </NavigationMenuLink>
-                    </NavigationMenuItem>
+                    
                     <NavigationMenuItem>
                         <NavigationMenuLink >
                             <Link to="/category" className="text-white/80 hover:text-black text-sm">
                                 Category
+                            </Link>
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink>
+                            <Link to="/expense" className="text-white/80 hover:text-black text-sm">
+                                My Expenses
                             </Link>
                         </NavigationMenuLink>
                     </NavigationMenuItem>

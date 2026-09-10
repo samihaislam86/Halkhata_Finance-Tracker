@@ -10,10 +10,8 @@ function formatDateKey(isoString) {
 function ExpenseTable() {
     const { transactions, categories, accounts } = useContext(FinanceContext)
 
-    // sort newest first
     const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date))
 
-    // group by date
     const grouped = sorted.reduce((groups, t) => {
         const key = formatDateKey(t.date)
         if (!groups[key]) groups[key] = []
@@ -33,34 +31,40 @@ function ExpenseTable() {
 
     return (
         <div className="flex flex-col gap-6 mt-6">
-            {Object.entries(grouped).map(([date, items]) => {
-                const dayTotal = items.reduce((sum, t) => sum + Number(t.amount), 0)
+            {transactions.length === 0 ? (
+                <div className="border rounded-lg px-4 py-8 text-center text-white/60">
+                    No expenses yet. Add your first transaction to see it here.
+                </div>
+            ) : (
+                Object.entries(grouped).map(([date, items]) => {
+                    const dayTotal = items.reduce((sum, t) => sum + Number(t.amount), 0)
 
-                return (
-                    <div key={date}>
-                        <div className="flex justify-between text-sm text-white/60 mb-2 px-1">
-                            <span>{date}</span>
-                            <span>${dayTotal.toFixed(2)}</span>
-                        </div>
-                        <div className="border rounded-lg ">
-                            {items.map((t) => (
-                                <div
-                                    key={t.id}
-                                    className="flex items-center justify-between bg-white/10 px-4 py-3 border-b last:border-b-0"
-                                >
-                                    <div>
-                                        <div className="font-medium">{t.name}</div>
-                                        <div className="text-sm text-white/60">
-                                            {getCategoryName(t.categoryId)} · {getAccountName(t.accountId)}
+                    return (
+                        <div key={date}>
+                            <div className="flex justify-between text-sm text-white/60 mb-2 px-1">
+                                <span>{date}</span>
+                                <span>Tk {dayTotal.toFixed(2)}</span>
+                            </div>
+                            <div className="border rounded-lg ">
+                                {items.map((t) => (
+                                    <div
+                                        key={t.id}
+                                        className="flex items-center justify-between bg-white/10 px-4 py-3 border-b last:border-b-0"
+                                    >
+                                        <div>
+                                            <div className="font-medium">{t.name}</div>
+                                            <div className="text-sm text-white/60">
+                                                {getCategoryName(t.categoryId)} · {getAccountName(t.accountId)}
+                                            </div>
                                         </div>
+                                        <span className="text-red-600">-Tk {Number(t.amount).toFixed(2)}</span>
                                     </div>
-                                    <span className="text-red-600">-${Number(t.amount).toFixed(2)}</span>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )
-            })}
+                    )
+                })
+            )}
         </div>
     )
 }

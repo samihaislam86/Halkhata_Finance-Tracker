@@ -133,24 +133,42 @@ export const FinanceProvider = ({ children }) => {
   }
 
   function addAccount({ name, type, balance }) {
+    const nameExists = accounts.some(
+        (a) => a.name.trim().toLowerCase() === name.trim().toLowerCase()
+    )
+    if (nameExists) {
+        return { success: false, message: "An account with this name already exists." }
+    }
+
     const newAccount = {
-      id: Date.now().toString(),
-      name,
-      type,
-      balance: Number(balance) || 0,
+        id: Date.now().toString(),
+        name,
+        type,
+        balance: Number(balance) || 0,
     };
     setAccounts((prev) => [...prev, newAccount]);
-    return newAccount.id;
-  }
+    return { success: true, id: newAccount.id };
+}
+
+function updateAccount(id, updatedFields) {
+    if (updatedFields.name) {
+        const nameExists = accounts.some(
+            (a) => a.id !== id && a.name.trim().toLowerCase() === updatedFields.name.trim().toLowerCase()
+        )
+        if (nameExists) {
+            return { success: false, message: "An account with this name already exists." }
+        }
+    }
+
+    setAccounts((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, ...updatedFields } : item))
+    );
+    return { success: true }
+}
+
 
   function deleteAccount(id) {
     setAccounts((prev) => prev.filter((item) => item.id !== id));
-  }
-
-  function updateAccount(id, updatedFields) {
-    setAccounts((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...updatedFields } : item))
-    );
   }
 
   function addCategory({ name, description, accountId, budgetTarget }) {

@@ -21,6 +21,13 @@ function Dashboard() {
 
     const netWorth = totalAssets - totalLiabilities
 
+    const todayTotal = (() => {
+        const today = new Date().toLocaleDateString()
+        return transactions
+            .filter((t) => t.type === "withdraw" && new Date(t.date).toLocaleDateString() === today)
+            .reduce((sum, t) => sum + Number(t.amount), 0)
+    })()
+
     const recentTransactions = [...transactions]
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 5)
@@ -35,17 +42,21 @@ function Dashboard() {
                 </div>
 
                 <div className="mt-6 flex flex-wrap gap-4">
-                    <div className="border border-white/10 rounded-lg px-6 py-4 flex-1 min-w-[180px]">
+                    <div className="border border-white/10 rounded-lg px-6 py-4 flex-1 min-w-[180px] bg-white/30">
                         <div className="text-sm text-white/60">Net Worth</div>
-                        <div className="text-2xl font-semibold">${netWorth.toFixed(2)}</div>
+                        <div className="text-2xl font-semibold">{netWorth.toFixed(2)}</div>
                     </div>
-                    <div className="border border-white/10 rounded-lg px-6 py-4 flex-1 min-w-[180px]">
+                    <div className="border border-white/10 rounded-lg px-6 py-4 flex-1 min-w-[180px] bg-white/30">
                         <div className="text-sm text-white/60">Assets</div>
-                        <div className="text-2xl font-semibold text-green-400">${totalAssets.toFixed(2)}</div>
+                        <div className="text-2xl font-semibold text-green-400">{totalAssets.toFixed(2)}</div>
                     </div>
-                    <div className="border border-white/10 rounded-lg px-6 py-4 flex-1 min-w-[180px]">
+                    <div className="border border-white/10 rounded-lg px-6 py-4 flex-1 min-w-[180px] bg-white/30 ">
                         <div className="text-sm text-white/60">Liabilities</div>
-                        <div className="text-2xl font-semibold text-red-400">${totalLiabilities.toFixed(2)}</div>
+                        <div className="text-2xl font-semibold ">{totalLiabilities.toFixed(2)}</div>
+                    </div>
+                    <div className="border border-white/10 rounded-lg px-6 py-4 flex-1 min-w-[180px] bg-white/30">
+                        <div className="text-sm text-white/60">Today's Expense</div>
+                        <div className="text-2xl font-semibold text-red-600">{todayTotal.toFixed(2)}</div>
                     </div>
                 </div>
 

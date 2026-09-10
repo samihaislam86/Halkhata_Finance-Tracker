@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react"
+import { useState, useContext } from "react"
 
 
 import { Field, FieldGroup } from "@/components/ui/field"
@@ -11,24 +11,11 @@ import { FinanceContext } from "@/context/FinanceContext"
 
 function CategoryModal({ category, open, onOpenChange }) {
     const { accounts, addCategory, updateCategory } = useContext(FinanceContext)
-    const [name, setName] = useState("")
-    const [description, setDescription] = useState("")
-    const [accountId, setAccountId] = useState("")
-    const [budgetTarget, setBudgetTarget] = useState("")
+    const [name, setName] = useState(category?.name ?? "")
+    const [description, setDescription] = useState(category?.description??"")
+    const [accountId, setAccountId] = useState(category?.accountId ??"")
+    const [budgetTarget, setBudgetTarget] = useState(category?.budgetTarget??"")
 
-    useEffect(() => {
-        if (category) {
-            setName(category.name)
-            setDescription(category.description)
-            setAccountId(category.accountId || "")
-            setBudgetTarget(category.budgetTarget)
-        } else {
-            setName("")
-            setDescription("")
-            setAccountId("")
-            setBudgetTarget("")
-        }
-    }, [category])
     function handleSubmit(e) {
         e.preventDefault()
         if (!name.trim()) return

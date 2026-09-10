@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react"
+import { useState, useContext} from "react"
 
 
 import { Field, FieldGroup } from "@/components/ui/field"
@@ -12,34 +12,30 @@ import { FinanceContext } from "@/context/FinanceContext"
 function AccountsModal({ account, open, onOpenChange }) {
 
     const { addAccount, updateAccount } = useContext(FinanceContext)
-    const [name, setName] = useState("")
-    const [type, setType] = useState("Cash")
-    const [balance, setBalance] = useState("")
+    const [name, setName] = useState(account?.name ?? "")
+    const [type, setType] = useState(account?.type ?? "Cash")
+    const [balance, setBalance] = useState(account?.balance ?? "")
 
-    useEffect(() => {
-        if (account) {
-            setName(account.name)
-            setType(account.type)
-            setBalance(account.balance)
-        } else {
-            setName("")
-            setType("Cash")
-            setBalance("")
-        }
-    }, [account])
 
     function handleSubmit(e) {
         e.preventDefault()
         if (!name.trim()) return
 
+        let result
         if (account) {
-
-            updateAccount(account.id, { name, type, balance })
-
+            result = updateAccount(account.id, { name, type, balance })
         } else {
-            addAccount({ name, type, balance })
+            result = addAccount({ name, type, balance })
         }
 
+        if (!result.success) {
+            alert(result.message)
+            return
+        }
+
+        setName("")
+        setType("Cash")
+        setBalance("")
         onOpenChange(false)
     }
 

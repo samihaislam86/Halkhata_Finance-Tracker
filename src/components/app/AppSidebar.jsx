@@ -4,8 +4,9 @@ const NAV_ITEMS = [
     {label: "Home", path:"/"},
     { label: "Dashboard", path: "/dashboard" },
     { label: "My Accounts", path: "/accounts" },
-    { label: "My Expenses", path: "/expense" },
     { label: "Category", path: "/category" },
+    { label: "My Expenses", path: "/expense" },
+    
 ]
 
 function AppSidebar() {

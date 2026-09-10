@@ -35,10 +35,11 @@ function Category() {
                     </Button>
                 </div>
                 <div>
-                    <CategoryTable onEditCategory={handleEditClick}/>
+                    <CategoryTable onEditCategory={handleEditClick} />
                 </div>
 
                 <CategoryModal
+                    key={editingCategory ? editingCategory.id : "new"}
                     category={editingCategory}
                     open={isModalOpen}
                     onOpenChange={(open) => {

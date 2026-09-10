@@ -52,6 +52,7 @@ function Accounts() {
                 </div>
 
                 <AccountsModal
+                key={editingAccount ? editingAccount.id : "new"}
                     account={editingAccount}
                     open={isModalOpen}
                     onOpenChange={(open) => {
