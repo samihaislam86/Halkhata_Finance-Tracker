@@ -1,5 +1,5 @@
-import { useState, useContext} from "react"
-
+import { useState } from "react"
+import { useDispatch } from "react-redux"
 
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -7,11 +7,12 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "@/components/ui/select"
-import { FinanceContext } from "@/context/FinanceContext"
+import { addAccount, updateAccount } from "@/store/AccountSlice"
+
 
 function AccountsModal({ account, open, onOpenChange }) {
 
-    const { addAccount, updateAccount } = useContext(FinanceContext)
+    const dispatch = useDispatch()
     const [name, setName] = useState(account?.name ?? "")
     const [type, setType] = useState(account?.type ?? "Cash")
     const [balance, setBalance] = useState(account?.balance ?? "")
@@ -21,16 +22,10 @@ function AccountsModal({ account, open, onOpenChange }) {
         e.preventDefault()
         if (!name.trim()) return
 
-        let result
         if (account) {
-            result = updateAccount(account.id, { name, type, balance })
+            dispatch(updateAccount({ id: account.id, updatedFields: { name, type, balance } }))
         } else {
-            result = addAccount({ name, type, balance })
-        }
-
-        if (!result.success) {
-            alert(result.message)
-            return
+            dispatch(addAccount({ name, type, balance }))
         }
 
         setName("")

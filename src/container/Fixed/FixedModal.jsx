@@ -1,49 +1,33 @@
-import { useState, useContext, useEffect } from "react"
-
-
+import { useState } from "react"
+import { useSelector, useDispatch } from "react-redux"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "@/components/ui/select"
-import { FinanceContext } from "@/context/FinanceContext"
+import { addFixedItem, updateFixedItem } from "@/store/fixedSlice"
 
 function FixedModal({ fixedItem, open, onOpenChange }) {
-    const { categories, addFixedItem, updateFixedItem } = useContext(FinanceContext)
-    const [name, setName] = useState("")
-    const [description, setDescription] = useState("")
-    const [categoryId, setCategoryId] = useState("")
-    const [target, setTarget] = useState("")
-
-    useEffect(() => {
-        if (fixedItem) {
-            setName(fixedItem.name)
-            setDescription(fixedItem.description)
-            setCategoryId(fixedItem.categoryId)
-            setTarget(fixedItem.target)
-        } else {
-            setName("")
-            setDescription("")
-            setCategoryId("")
-            setTarget("")
-        }
-    }, [fixedItem])
+    const categories = useSelector((state) => state.categories)
+    const dispatch = useDispatch()
+    const [name, setName] = useState(fixedItem?.name ?? "")
+    const [description, setDescription] = useState(fixedItem?.description ?? "")
+    const [categoryId, setCategoryId] = useState(fixedItem?.categoryId ?? "")
+    const [target, setTarget] = useState(fixedItem?.target ?? "")
 
     function handleSubmit(e) {
         e.preventDefault()
         if (!name.trim()) return
         if (!categoryId) return
-
         if (fixedItem) {
-            updateFixedItem(fixedItem.id, { name, description, categoryId, target })
+            dispatch(updateFixedItem({ id: fixedItem.id, updatedFields: { name, description, categoryId, target } }))
         } else {
-            addFixedItem({ name, description, categoryId, target })
+            dispatch(addFixedItem({ name, description, categoryId, target }))
         }
 
         onOpenChange(false)
     }
-
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>

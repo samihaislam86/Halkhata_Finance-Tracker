@@ -1,14 +1,18 @@
 import { useParams } from "react-router-dom"
-import { useContext, useState } from "react"
-import { FinanceContext } from "../../../context/FinanceContext"
+import { useSelector, useDispatch } from "react-redux"
+import { useState } from "react"
 import AppSidebar from "../AppSidebar"
 import { Button } from "@/components/ui/button"
 import TableActions from "../TableActions"
 import FixedModal from "@/container/Fixed/FixedModal"
+import { deleteFixedItem, updateFixedItem } from "@/store/fixedSlice"
+import { addTransaction } from "@/store/transactionSlice"
 
 function FixedPage() {
     const { categoryId } = useParams()
-    const { categories, fixedItems, deleteFixedItem, updateFixedItem, addTransaction } = useContext(FinanceContext)
+    const categories = useSelector((state) => state.categories)
+    const fixedItems = useSelector((state) => state.fixedItems)
+    const dispatch = useDispatch()
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingFixedItem, setEditingFixedItem] = useState(null)
@@ -27,7 +31,7 @@ function FixedPage() {
     }
 
     function handleDelete(id) {
-        deleteFixedItem(id)
+        dispatch(deleteFixedItem(id))
     }
 
     function getCurrentMonthKey() {
@@ -50,20 +54,20 @@ function FixedPage() {
             return
         }
 
-        const result = addTransaction({
+        const result = dispatch(addTransaction({
             name: item.name,
             accountId: itemCategory.accountId,
             amount: item.target,
             type: "withdraw",
             categoryId: item.categoryId,
-        })
+        }))
 
         if (!result.success) {
             alert(result.message)
             return
         }
 
-        updateFixedItem(item.id, { lastPaidMonth: currentMonth })
+        dispatch(updateFixedItem({ id: item.id, updatedFields: { lastPaidMonth: currentMonth } }))
     }
 
     if (!category) {
@@ -126,8 +130,8 @@ function FixedPage() {
                         )
                     })}
                 </div>
-
                 <FixedModal
+                    key={editingFixedItem ? editingFixedItem.id : "new"}
                     fixedItem={editingFixedItem}
                     open={isModalOpen}
                     onOpenChange={(open) => {

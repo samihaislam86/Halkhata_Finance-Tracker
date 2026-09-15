@@ -1,12 +1,14 @@
 
 import '../../App.css'
-import { useContext } from "react"
 import { Link } from "react-router-dom"
-import { FinanceContext } from "../../context/FinanceContext"
 import AppSidebar from "./AppSidebar"
+import { useSelector } from "react-redux"
 
 function Dashboard() {
-    const { accounts, categories, transactions } = useContext(FinanceContext)
+    const transactions = useSelector((state) => state.transactions)
+    const categories = useSelector((state) => state.categories)
+    const accounts = useSelector((state) => state.accounts)
+    
 
     const assetTypes = ["Cash", "Debit"]
     const liabilityTypes = ["Credit"]

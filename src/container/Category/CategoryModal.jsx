@@ -1,29 +1,30 @@
-import { useState, useContext } from "react"
-
-
+import { useState } from "react"
+import { useSelector, useDispatch } from "react-redux"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "@/components/ui/select"
-import { FinanceContext } from "@/context/FinanceContext"
+import { addCategory, updateCategory } from "@/store/categoriesSlice"
+
 
 function CategoryModal({ category, open, onOpenChange }) {
-    const { accounts, addCategory, updateCategory } = useContext(FinanceContext)
+    const accounts = useSelector((state) => state.accounts)
+    const dispatch = useDispatch()
     const [name, setName] = useState(category?.name ?? "")
-    const [description, setDescription] = useState(category?.description??"")
-    const [accountId, setAccountId] = useState(category?.accountId ??"")
-    const [budgetTarget, setBudgetTarget] = useState(category?.budgetTarget??"")
+    const [description, setDescription] = useState(category?.description ?? "")
+    const [accountId, setAccountId] = useState(category?.accountId ?? "")
+    const [budgetTarget, setBudgetTarget] = useState(category?.budgetTarget ?? "")
 
     function handleSubmit(e) {
         e.preventDefault()
         if (!name.trim()) return
         if (!budgetTarget) return
         if (category) {
-            updateCategory(category.id, { name, description, accountId, budgetTarget })
+            dispatch(updateCategory({ id: category.id, updatedFields: { name, description, accountId, budgetTarget } }))
         } else {
-            addCategory({ name, description, accountId, budgetTarget })
+            dispatch(addCategory({ name, description, accountId, budgetTarget }))
         }
         onOpenChange(false)
     }

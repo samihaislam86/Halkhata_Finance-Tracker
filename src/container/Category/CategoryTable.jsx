@@ -1,14 +1,16 @@
-// container/Category/CategoryTable.jsx
-import { useContext } from "react"
+import { useSelector, useDispatch } from "react-redux"
 import { Link } from "react-router-dom"
-import { FinanceContext } from "../../context/FinanceContext"
 import TableActions from "../../components/app/TableActions"
+import { deleteCategory } from "@/store/categoriesSlice"
 
 function CategoryTable({ onEditCategory }) {
-    const { categories, accounts, deleteCategory } = useContext(FinanceContext)
+    const accounts = useSelector((state) => state.accounts)
+    const categories = useSelector((state) => state.categories)
+    const dispatch = useDispatch()
+
 
     function handleDelete(id) {
-        deleteCategory(id)
+        dispatch(deleteCategory(id))
     }
 
     function getAccountName(accountId) {

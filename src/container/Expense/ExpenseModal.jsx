@@ -1,14 +1,18 @@
-import { useState, useContext, useEffect } from "react"
+import { useState, useEffect } from "react"
+import { useSelector, useDispatch } from "react-redux"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "@/components/ui/select"
-import { FinanceContext } from "@/context/FinanceContext"
+import { addTransaction } from "@/store/transactionSlice"
+
 
 function ExpenseModal({ open, onOpenChange }) {
-    const { accounts, categories, addTransaction } = useContext(FinanceContext)
+    const categories = useSelector((state) => state.categories)
+    const accounts = useSelector((state) => state.accounts)
+    const dispatch = useDispatch()
     const [name, setName] = useState("")
     const [amount, setAmount] = useState("")
     const [categoryId, setCategoryId] = useState("")
@@ -33,13 +37,13 @@ function ExpenseModal({ open, onOpenChange }) {
             return
         }
 
-        const result = addTransaction({
+        const result = dispatch(addTransaction({
             name,
             accountId,
             amount,
             type: "withdraw",
             categoryId: categoryId || null,
-        })
+        }))
 
         if (!result.success) {
             alert(result.message)
