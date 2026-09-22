@@ -1,17 +1,17 @@
-import { useContext } from "react"
-
+import { useSelector, useDispatch } from "react-redux"
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { ChevronRight } from "lucide-react"
-
-import { FinanceContext } from "@/context/FinanceContext"
 import TableActions from "@/components/app/TableActions"
+import { deleteAccount } from "@/store/AccountSlice"
+
 
 function AccountsTable({ onEditAccount }) {
-    const { accounts, deleteAccount } = useContext(FinanceContext)
+    const accounts = useSelector((state) => state.accounts)
+    const dispatch = useDispatch()
 
     const grouped = accounts.reduce((groups, account) => {
         const key = account.type
@@ -21,7 +21,7 @@ function AccountsTable({ onEditAccount }) {
     }, {})
 
     function handleDelete(id) {
-        deleteAccount(id)
+        dispatch(deleteAccount(id))
     }
 
     return (

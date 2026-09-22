@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { useContext } from "react"
-import { FinanceContext } from "../../context/FinanceContext"
+import { useSelector } from "react-redux"
 import AppSidebar from "../../components/app/AppSidebar"
 import {
     Collapsible,
@@ -12,8 +11,8 @@ import { ChevronRight } from "lucide-react"
 function CategoryDetail() {
     const { categoryId } = useParams()
     const navigate = useNavigate()
-    const { categories, transactions } = useContext(FinanceContext)
-
+    const categories = useSelector((state) => state.categories)
+    const transactions = useSelector((state) => state.transactions)
     const category = categories.find((c) => c.id === categoryId)
 
     if (!category) {
@@ -21,8 +20,8 @@ function CategoryDetail() {
     }
 
     const regularExpenses = transactions
-    .filter((t) => t.categoryId === categoryId && t.type === "withdraw")
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .filter((t) => t.categoryId === categoryId && t.type === "withdraw")
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
 
     return (
         <div className="flex">

@@ -1,6 +1,4 @@
-import { FinanceContext } from "@/context/FinanceContext"
-import { useContext } from "react"
-
+import { useSelector } from "react-redux"
 
 function formatDateKey(isoString) {
     const d = new Date(isoString)
@@ -8,8 +6,9 @@ function formatDateKey(isoString) {
 }
 
 function ExpenseTable() {
-    const { transactions, categories, accounts } = useContext(FinanceContext)
-
+    const transactions = useSelector((state) => state.transactions)
+    const categories = useSelector((state) => state.categories)
+    const accounts = useSelector((state) => state.accounts)
     const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date))
 
     const grouped = sorted.reduce((groups, t) => {

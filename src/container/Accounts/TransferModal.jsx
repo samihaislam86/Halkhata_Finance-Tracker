@@ -1,16 +1,17 @@
-import { useState, useContext } from "react"
-
-
+import { useState } from "react"
+import { useSelector, useDispatch } from "react-redux"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "@/components/ui/select"
-import { FinanceContext } from "@/context/FinanceContext"
+import { transferMoney } from "@/store/transactionSlice"
+
 
 function TransferModal({ open, onOpenChange }) {
-    const { accounts, transferMoney } = useContext(FinanceContext)
+    const accounts = useSelector((state) => state.accounts)
+    const dispatch = useDispatch()
     const [fromAccountId, setFromAccountId] = useState("")
     const [toAccountId, setToAccountId] = useState("")
     const [amount, setAmount] = useState("")
@@ -18,7 +19,7 @@ function TransferModal({ open, onOpenChange }) {
     function handleSubmit(e) {
         e.preventDefault()
 
-        const result = transferMoney({ fromAccountId, toAccountId, amount })
+        const result = dispatch(transferMoney({ fromAccountId, toAccountId, amount }))
 
         if (!result.success) {
             alert(result.message)
