@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux"
 import { Link } from "react-router-dom"
 import TableActions from "../../components/app/TableActions"
-import { deleteCategory } from "@/store/categoriesSlice"
+import { removeCategory } from "@/store/categoriesSlice"
 
 function CategoryTable({ onEditCategory }) {
     const accounts = useSelector((state) => state.accounts)
@@ -10,7 +10,12 @@ function CategoryTable({ onEditCategory }) {
 
 
     function handleDelete(id) {
-        dispatch(deleteCategory(id))
+        console.log("Deleting id:", id)
+        dispatch(removeCategory(id)).then((result) => {
+            if (!result.success) {
+                alert(result.message)
+            }
+        })
     }
 
     function getAccountName(accountId) {

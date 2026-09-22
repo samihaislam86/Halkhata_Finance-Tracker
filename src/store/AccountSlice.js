@@ -1,17 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-function loadStorage() {
-    try {
-        const stored = localStorage.getItem("accounts")
-        return stored != null ? JSON.parse(stored) : []
-    } catch {
-        return []
-    }
-}
-
 const accountsSlice = createSlice({
     name: "accounts",
-    initialState: loadStorage(),
+    initialState: [],
     reducers: {
         addAccount: {
             reducer: (state, action) => {
@@ -45,40 +36,90 @@ const accountsSlice = createSlice({
                 account.balance = type === "withdraw" ? account.balance - amount : account.balance + amount
             }
         },
+        setAccounts: (state, action) => {
+            return action.payload
+        },
     }
 })
 
-export function createAccount({ name, type, balance }) {
-    return (dispatch, getState) => {
-        const accounts = getState().accounts
-        const nameExists = accounts.some(
-            (a) => a.name.trim().toLowerCase() === name.trim().toLowerCase()
-        )
-        if (nameExists) {
-            return { success: false, message: "An account with this name already exists." }
+export function fetchAccounts() {
+    return async (dispatch) => {
+        try {
+            const response = await fetch("http://localhost:3000/accounts")
+            const data = await response.json()
+            dispatch(setAccounts(data))
+        } catch (error) {
+            console.error("Failed to fetch accounts:", error)
         }
+    }
+}
 
-        dispatch(addAccount({ name, type, balance }))
-        return { success: true }
+export function createAccount({ name, type, balance }) {
+    return async (dispatch) => {
+        try {
+            const response = await fetch("http://localhost:3000/accounts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, type, balance }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                return { success: false, message: data.message }
+            }
+
+            dispatch(addAccount(data))
+            return { success: true }
+        } catch (error) {
+            return { success: false, message: "Could not connect to server." }
+        }
     }
 }
 
 export function editAccount(id, updatedFields) {
-    return (dispatch, getState) => {
-        if (updatedFields.name) {
-            const accounts = getState().accounts
-            const nameExists = accounts.some(
-                (a) => a.id !== id && a.name.trim().toLowerCase() === updatedFields.name.trim().toLowerCase()
-            )
-            if (nameExists) {
-                return { success: false, message: "An account with this name already exists." }
-            }
-        }
+    return async (dispatch) => {
+        try {
+            const response = await fetch(`http://localhost:3000/accounts/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedFields),
+            })
 
-        dispatch(updateAccount({ id, updatedFields }))
-        return { success: true }
+            const data = await response.json()
+
+            if (!response.ok) {
+                return { success: false, message: data.message }
+            }
+
+            dispatch(updateAccount({ id, updatedFields: data }))
+            return { success: true }
+        } catch (error) {
+            return { success: false, message: "Could not connect to server." }
+        }
     }
 }
 
-export const { addAccount, updateAccount, deleteAccount, adjustBalance } = accountsSlice.actions
+export function removeAccount(id) {
+    return async (dispatch) => {
+        try {
+            const response = await fetch(`http://localhost:3000/accounts/${id}`, {
+                method: "DELETE",
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                return { success: false, message: data.message }
+            }
+
+            dispatch(deleteAccount(id))
+            return { success: true }
+        } catch (error) {
+            return { success: false, message: "Could not connect to server." }
+        }
+    }
+}
+
+export const { addAccount, updateAccount, deleteAccount, adjustBalance, setAccounts } = accountsSlice.actions
 export default accountsSlice.reducer

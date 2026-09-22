@@ -1,13 +1,19 @@
 import AppSidebar from "../AppSidebar";
 import { Button } from "@/components/ui/button"
-
-import { useState } from "react";
+import {fetchCategories} from "@/store/categoriesSlice"
+import { useDispatch } from "react-redux"
+import { useState,useEffect } from "react";
 import CategoryTable from "../../../container/Category/CategoryTable";
 import CategoryModal from "@/container/Category/CategoryModal";
 
 function Category() {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingCategory, setEditingCategory] = useState(null)
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        dispatch(fetchCategories())
+    }, [dispatch])
 
     function handleAddClick() {
         setEditingCategory(null)

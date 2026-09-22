@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "@/components/ui/select"
-import { addCategory, updateCategory } from "@/store/categoriesSlice"
+import { createCategory, editCategory } from "@/store/categoriesSlice"
 
 
 function CategoryModal({ category, open, onOpenChange }) {
@@ -17,14 +17,21 @@ function CategoryModal({ category, open, onOpenChange }) {
     const [accountId, setAccountId] = useState(category?.accountId ?? "")
     const [budgetTarget, setBudgetTarget] = useState(category?.budgetTarget ?? "")
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault()
         if (!name.trim()) return
         if (!budgetTarget) return
+
+        let result
         if (category) {
-            dispatch(updateCategory({ id: category.id, updatedFields: { name, description, accountId, budgetTarget } }))
+            result = await  dispatch(editCategory(category.id, { name, description, accountId, budgetTarget }))
         } else {
-            dispatch(addCategory({ name, description, accountId, budgetTarget }))
+            result = await dispatch(createCategory({ name, description, accountId, budgetTarget }))
+        }
+
+        if (!result.success) {
+            alert(result.message)
+            return
         }
         onOpenChange(false)
     }

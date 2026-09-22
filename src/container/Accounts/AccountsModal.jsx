@@ -1,14 +1,12 @@
 import { useState } from "react"
 import { useDispatch } from "react-redux"
-
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "@/components/ui/select"
-import { addAccount, updateAccount } from "@/store/AccountSlice"
-
+import { createAccount, editAccount } from "@/store/AccountSlice"
 
 function AccountsModal({ account, open, onOpenChange }) {
 
@@ -18,21 +16,26 @@ function AccountsModal({ account, open, onOpenChange }) {
     const [balance, setBalance] = useState(account?.balance ?? "")
 
 
-    function handleSubmit(e) {
-        e.preventDefault()
-        if (!name.trim()) return
+ async function handleSubmit(e) {
+    e.preventDefault()
+    if (!name.trim()) return
 
-        if (account) {
-            dispatch(updateAccount({ id: account.id, updatedFields: { name, type, balance } }))
-        } else {
-            dispatch(addAccount({ name, type, balance }))
-        }
-
-        setName("")
-        setType("Cash")
-        setBalance("")
-        onOpenChange(false)
+    let result
+    if (account) {
+        result = await dispatch(editAccount(account.id, { name, type, balance }))
+    } else {
+        result = await dispatch(createAccount({ name, type, balance }))
     }
+
+    if (!result.success) {
+        alert(result.message)
+        return
+    }
+    setName("")
+    setType("Cash")
+    setBalance("")
+    onOpenChange(false)
+}
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>

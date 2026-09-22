@@ -1,17 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit"
 
-function loadFromStorage() {
-    try {
-        const stored = localStorage.getItem("categories")
-        return stored != null ? JSON.parse(stored) : []
-    } catch {
-        return []
-    }
-}
-
 const categoriesSlice = createSlice({
     name: "categories",
-    initialState: loadFromStorage(),
+    initialState: [],
     reducers: {
         addCategory: {
             reducer: (state, action) => {
@@ -47,8 +38,87 @@ const categoriesSlice = createSlice({
                 category.spent = (category.spent || 0) + amount
             }
         },
+        setCategories: (state, action) => {
+            return action.payload
+        },
     },
 })
 
-export const { addCategory, updateCategory, deleteCategory, addSpent } = categoriesSlice.actions
+export function fetchCategories() {
+    return async (dispatch) => {
+        try {
+            const response = await fetch("http://localhost:3000/categories")
+            const data = await response.json()
+            dispatch(setCategories(data))
+        } catch (error) {
+            console.error("Failed to fetch categories:", error)
+        }
+    }
+}
+
+export function createCategory({ name, description, accountId, budgetTarget }) {
+    return async (dispatch) => {
+        try {
+            const response = await fetch("http://localhost:3000/categories", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, description, accountId, budgetTarget }),
+            })
+            const data = await response.json()
+            if (!response.ok) {
+                return { success: false, message: data.message }
+            }
+            dispatch(addCategory(data))
+            return { success: true }
+        } catch (error) {
+            return { success: false, message: "Could not connect to server." }
+        }
+    }
+}
+
+export function editCategory(id, updatedFields) {
+    return async (dispatch) => {
+        try {
+            const response = await fetch(`http://localhost:3000/categories/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedFields),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                return { success: false, message: data.message }
+            }
+
+            dispatch(updateCategory({ id, updatedFields: data }))
+            return { success: true }
+        } catch (error) {
+            return { success: false, message: "Could not connect to server." }
+        }
+    }
+}
+
+export function removeCategory(id) {
+    return async (dispatch) => {
+        try {
+            const response = await fetch(`http://localhost:3000/categories/${id}`, {
+                method: "DELETE",
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                return { success: false, message: data.message }
+            }
+
+            dispatch(deleteCategory(id))
+            return { success: true }
+        } catch (error) {
+            return { success: false, message: "Could not connect to server." }
+        }
+    }
+}
+
+export const { addCategory, updateCategory, deleteCategory, addSpent, setCategories } = categoriesSlice.actions
 export default categoriesSlice.reducer

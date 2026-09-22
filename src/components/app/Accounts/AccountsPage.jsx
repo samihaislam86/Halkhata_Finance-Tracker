@@ -1,16 +1,21 @@
-import { useState } from "react"
+import { useState ,useEffect} from "react"
 import AppSidebar from "../AppSidebar";
-
-
+import { useDispatch } from "react-redux"
 import { Button } from "@/components/ui/button"
 import TransferModal from "@/container/Accounts/TransferModal";
 import AccountsModal from "@/container/Accounts/AccountsModal";
 import AccountsTable from "@/container/Accounts/AccountsTable";
+import { fetchAccounts } from "@/store/AccountSlice";
 
 function Accounts() {
+    const dispatch = useDispatch()
     const [editingAccount, setEditingAccount] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
+
+    useEffect(() => {
+        dispatch(fetchAccounts())
+    }, [dispatch])
 
     function handleAddClick() {
         setEditingAccount(null)

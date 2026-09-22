@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/collapsible"
 import { ChevronRight } from "lucide-react"
 import TableActions from "@/components/app/TableActions"
-import { deleteAccount } from "@/store/AccountSlice"
+import { removeAccount } from "@/store/AccountSlice"
 
 
 function AccountsTable({ onEditAccount }) {
@@ -21,8 +21,13 @@ function AccountsTable({ onEditAccount }) {
     }, {})
 
     function handleDelete(id) {
-        dispatch(deleteAccount(id))
-    }
+    console.log("Deleting id:", id)
+    dispatch(removeAccount(id)).then((result) => {
+        if (!result.success) {
+            alert(result.message)
+        }
+    })
+}
 
     return (
         <div className="flex flex-col gap-4 mt-6">
