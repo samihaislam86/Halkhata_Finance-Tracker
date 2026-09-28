@@ -21,15 +21,15 @@ function ExpenseModal({ open, onOpenChange }) {
     const categoryHasAccount = Boolean(selectedCategory?.accountId)
 
     useEffect(() => {
-    const category = categories.find((c) => c.id === categoryId)
-    if (category?.accountId) {
-        setAccountId(category.accountId)
-    } else {
-        setAccountId("")
-    }
-}, [categoryId, categories])
+        const category = categories.find((c) => c.id === categoryId)
+        if (category?.accountId) {
+            setAccountId(category.accountId)
+        } else {
+            setAccountId("")
+        }
+    }, [categoryId, categories])
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault()
         if (!name.trim() || !amount) return
         if (!accountId) {
@@ -37,7 +37,7 @@ function ExpenseModal({ open, onOpenChange }) {
             return
         }
 
-        const result = dispatch(addTransaction({
+        const result = await dispatch(addTransaction({
             name,
             accountId,
             amount,

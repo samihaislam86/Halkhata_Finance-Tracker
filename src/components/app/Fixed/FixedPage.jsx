@@ -1,12 +1,11 @@
 import { useParams } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import AppSidebar from "../AppSidebar"
 import { Button } from "@/components/ui/button"
 import TableActions from "../TableActions"
 import FixedModal from "@/container/Fixed/FixedModal"
-import { deleteFixedItem, updateFixedItem } from "@/store/fixedSlice"
-import { addTransaction } from "@/store/transactionSlice"
+import { fetchFixed, removeFixed, payFixedItem } from "@/store/fixedSlice"
 
 function FixedPage() {
     const { categoryId } = useParams()
@@ -16,6 +15,10 @@ function FixedPage() {
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingFixedItem, setEditingFixedItem] = useState(null)
+
+    useEffect(() => {
+        dispatch(fetchFixed())
+    }, [dispatch])
 
     const category = categories.find((c) => c.id === categoryId)
     const categoryFixedItems = fixedItems.filter((f) => f.categoryId === categoryId)
@@ -30,8 +33,11 @@ function FixedPage() {
         setIsModalOpen(true)
     }
 
-    function handleDelete(id) {
-        dispatch(deleteFixedItem(id))
+    async function handleDelete(id) {
+        const result = await dispatch(removeFixed(id))
+        if (!result.success) {
+            alert(result.message)
+        }
     }
 
     function getCurrentMonthKey() {
@@ -39,35 +45,11 @@ function FixedPage() {
         return `${now.getFullYear()}-${now.getMonth() + 1}`
     }
 
-    function handlePay(item) {
-        const currentMonth = getCurrentMonthKey()
-
-        if (item.lastPaidMonth === currentMonth) {
-            alert("This has already been paid this month.")
-            return
-        }
-
-        const itemCategory = categories.find((c) => c.id === item.categoryId)
-
-        if (!itemCategory || !itemCategory.accountId) {
-            alert("This category has no linked account. Please set one first.")
-            return
-        }
-
-        const result = dispatch(addTransaction({
-            name: item.name,
-            accountId: itemCategory.accountId,
-            amount: item.target,
-            type: "withdraw",
-            categoryId: item.categoryId,
-        }))
-
+    async function handlePay(item) {
+        const result = await dispatch(payFixedItem(item.id))
         if (!result.success) {
             alert(result.message)
-            return
         }
-
-        dispatch(updateFixedItem({ id: item.id, updatedFields: { lastPaidMonth: currentMonth } }))
     }
 
     if (!category) {

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectTrigger, SelectItem, SelectContent, SelectValue } from "@/components/ui/select"
-import { addFixedItem, updateFixedItem } from "@/store/fixedSlice"
+import { createFixed, editFixed } from "@/store/fixedSlice"
 
 function FixedModal({ fixedItem, open, onOpenChange }) {
     const categories = useSelector((state) => state.categories)
@@ -16,16 +16,22 @@ function FixedModal({ fixedItem, open, onOpenChange }) {
     const [categoryId, setCategoryId] = useState(fixedItem?.categoryId ?? "")
     const [target, setTarget] = useState(fixedItem?.target ?? "")
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault()
         if (!name.trim()) return
         if (!categoryId) return
+
+        let result
         if (fixedItem) {
-            dispatch(updateFixedItem({ id: fixedItem.id, updatedFields: { name, description, categoryId, target } }))
+            result = await dispatch(editFixed(fixedItem.id, { name, description, categoryId, target }))
         } else {
-            dispatch(addFixedItem({ name, description, categoryId, target }))
+            result = await dispatch(createFixed({ name, description, categoryId, target }))
         }
 
+        if (!result.success) {
+            alert(result.message)
+            return
+        }
         onOpenChange(false)
     }
     return (

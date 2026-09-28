@@ -1,11 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import AppSidebar from "../AppSidebar";
 import ExpenseModal from "../../../container/Expense/ExpenseModal";
 import ExpenseTable from "../../../container/Expense/ExpenseTable";
 import { Button } from "@/components/ui/button";
+import { fetchTransactions } from "@/store/transactionSlice";
+import { fetchAccounts } from "@/store/AccountSlice";
+import { fetchCategories } from "@/store/categoriesSlice";
+
 function ExpensePage() {
+    const dispatch = useDispatch()
     const [editingExpense, setEditingExpense] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
+
+    useEffect(() => {
+        dispatch(fetchTransactions())
+        dispatch(fetchAccounts())
+        dispatch(fetchCategories())
+    }, [dispatch])
 
     function handleAddClick() {
         setEditingExpense(null)

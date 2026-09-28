@@ -4,22 +4,8 @@ const categoriesSlice = createSlice({
     name: "categories",
     initialState: [],
     reducers: {
-        addCategory: {
-            reducer: (state, action) => {
-                state.push(action.payload)
-            },
-            prepare: ({ name, description, accountId, budgetTarget }) => {
-                return {
-                    payload: {
-                        id: Date.now().toString(),
-                        name,
-                        description: description || "",
-                        accountId: accountId || null,
-                        budgetTarget: Number(budgetTarget) || 0,
-                        spent: 0,
-                    }
-                }
-            }
+        addCategory: (state, action) => {
+            state.push(action.payload)
         },
         updateCategory: (state, action) => {
             const { id, updatedFields } = action.payload

@@ -16,10 +16,10 @@ function TransferModal({ open, onOpenChange }) {
     const [toAccountId, setToAccountId] = useState("")
     const [amount, setAmount] = useState("")
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault()
 
-        const result = dispatch(transferMoney({ fromAccountId, toAccountId, amount }))
+        const result = await dispatch(transferMoney({ fromAccountId, toAccountId, amount }))
 
         if (!result.success) {
             alert(result.message)

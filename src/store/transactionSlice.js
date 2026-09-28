@@ -1,116 +1,75 @@
 import { createSlice } from "@reduxjs/toolkit"
-
-import { addSpent } from "./categoriesSlice"
-import { adjustBalance } from "./AccountSlice"
-
-function loadFromStorage() {
-    try {
-        const stored = localStorage.getItem("transactions")
-        return stored != null ? JSON.parse(stored) : []
-    } catch {
-        return []
-    }
-}
+import { fetchAccounts } from "./AccountSlice"
 
 const transactionsSlice = createSlice({
     name: "transactions",
-    initialState: loadFromStorage(),
+    initialState: [],
     reducers: {
-        addTransactionRecord: {
-            reducer: (state, action) => {
-                state.push(action.payload)
-            },
-            prepare: ({ name, accountId, type, categoryId, amount }) => {
-                return {
-                    payload: {
-                        id: Date.now().toString(),
-                        name: name || "Untitled",
-                        accountId,
-                        type,
-                        categoryId: categoryId || null,
-                        amount,
-                        date: new Date().toISOString(),
-                    }
-                }
-            }
+        addTransactionRecord: (state, action) => {
+            state.push(action.payload)
+        },
+        setTransactions: (state, action) => {
+            return action.payload
         },
     },
 })
 
-export const { addTransactionRecord } = transactionsSlice.actions
+export const { addTransactionRecord, setTransactions } = transactionsSlice.actions
 export default transactionsSlice.reducer
 
-
-export function addTransaction({ name, accountId, amount, type, categoryId }) {
-    return (dispatch, getState) => {
-        const transAmount = Number(amount)
-
-        if (!accountId) {
-            return { success: false, message: "Please choose an account." }
+export function fetchTransactions() {
+    return async (dispatch) => {
+        try {
+            const response = await fetch("http://localhost:3000/transactions")
+            const data = await response.json()
+            dispatch(setTransactions(data))
+        } catch (error) {
+            console.error("Failed to fetch transactions:", error)
         }
-        if (!transAmount || transAmount <= 0) {
-            return { success: false, message: "Enter a valid amount." }
-        }
-
-        const accounts = getState().accounts
-
-        if (type === "withdraw") {
-            const account = accounts.find((a) => a.id === accountId)
-            if (!account) {
-                return { success: false, message: "Invalid account." }
-            }
-            if (account.balance < transAmount) {
-                return { success: false, message: "Insufficient balance in this account." }
-            }
-        }
-
-        dispatch(adjustBalance({ accountId, amount: transAmount, type }))
-
-        if (type === "withdraw" && categoryId) {
-            dispatch(addSpent({ categoryId, amount: transAmount }))
-        }
-
-        dispatch(addTransactionRecord({ name, accountId, type, categoryId, amount: transAmount }))
-
-        return { success: true }
     }
 }
-export function transferMoney({ fromAccountId, toAccountId, amount }) {
-    return (dispatch, getState) => {
-        const transferAmount = Number(amount)
 
-        if (!fromAccountId || !toAccountId) {
-            return { success: false, message: "Please choose both accounts." }
+export function addTransaction({ name, accountId, amount, type, categoryId }) {
+    return async (dispatch) => {
+        try {
+            const response = await fetch("http://localhost:3000/transactions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, accountId, amount, type, categoryId }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                return { success: false, message: data.message }
+            }
+
+            dispatch(addTransactionRecord(data))
+            return { success: true }
+        } catch (error) {
+            return { success: false, message: "Could not connect to server." }
         }
-        if (fromAccountId === toAccountId) {
-            return { success: false, message: "Cannot transfer to the same account." }
-        }
-        if (!transferAmount || transferAmount <= 0) {
-            return { success: false, message: "Enter a valid amount." }
-        }
-
-        const accounts = getState().accounts
-        const fromAccount = accounts.find((a) => a.id === fromAccountId)
-        if (!fromAccount) {
-            return { success: false, message: "Invalid source account." }
-        }
-        if (fromAccount.balance < transferAmount) {
-            return { success: false, message: "Insufficient balance in source account." }
-        }
-
-        const toAccount = accounts.find((a) => a.id === toAccountId)
-
-        dispatch(adjustBalance({ accountId: fromAccountId, amount: transferAmount, type: "withdraw" }))
-        dispatch(adjustBalance({ accountId: toAccountId, amount: transferAmount, type: "deposit" }))
-
-        dispatch(addTransactionRecord({
-            name: `Transfer to ${toAccount?.name || "account"}`,
-            accountId: fromAccountId,
-            type: "transfer",
-            categoryId: null,
-            amount: transferAmount,
-        }))
-
-        return { success: true }
     }
+}
+
+export function transferMoney({fromAccountId, toAccountId, amount}){
+    return async (dispatch)=> {
+        try {
+            const response= await fetch("http://localhost:3000/transactions/transfer",{
+                method:"POST",
+                headers:{"Content-type": "application/json"},
+                body: JSON.stringify({fromAccountId, toAccountId, amount}),
+            })
+            const data = await response.json()
+            if (!response.ok){
+                return {success:false, message:data.message}
+            }
+            dispatch (fetchAccounts(data))
+            return{success:true}
+        }catch(error){
+            return {success:false, message:"Could not connect to server"}
+
+        }
+    }
+
 }

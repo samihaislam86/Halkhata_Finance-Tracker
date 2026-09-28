@@ -7,7 +7,7 @@ router.get("/", fixedItemController.getAllFixedItem)
 router.post("/", fixedItemController.createFixedItem)
 router.put("/:id", fixedItemController.updateFixedItem)
 router.delete("/:id", fixedItemController.deleteFixedItem)
-router.post("/:id", fixedItemController.createFixedItemPay)
+router.post("/:id/pay", fixedItemController.createFixedItemPay)
 
 
 module.exports = router

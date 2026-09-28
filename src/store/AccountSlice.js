@@ -4,20 +4,8 @@ const accountsSlice = createSlice({
     name: "accounts",
     initialState: [],
     reducers: {
-        addAccount: {
-            reducer: (state, action) => {
-                state.push(action.payload)
-            },
-            prepare: ({ name, type, balance }) => {
-                return {
-                    payload: {
-                        id: Date.now().toString(),
-                        name,
-                        type,
-                        balance: Number(balance) || 0
-                    }
-                }
-            }
+        addAccount: (state, action) => {
+            state.push(action.payload)
         },
         updateAccount: (state, action) => {
             const { id, updatedFields } = action.payload;
